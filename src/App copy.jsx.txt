@@ -1,0 +1,198 @@
+import React, { useState } from 'react';
+import { useKeycloak } from '@react-keycloak/web';
+import {postUserData} from './services/auth.services';
+
+function App() {
+  const { keycloak, initialized } = useKeycloak();
+
+  const [formData, setFormData] = useState({
+    shoulderError: '',
+    kneeError: '',
+    backError: '',
+    totalError: '',
+    greenPercent: '',
+    redPercent: '',
+  });
+
+  if (!initialized) {
+    return <div>Loading....</div>;
+  }
+
+  const handleLogin = async () => {
+    await keycloak.login();
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const userDetails = {
+      email: keycloak.tokenParsed?.email || '',
+      firstName: keycloak.tokenParsed?.given_name || '',
+      lastName: keycloak.tokenParsed?.family_name || '',
+      employeeId: keycloak.tokenParsed?.sub || '',
+      token: keycloak.token || '',
+      tokenExpireTime: keycloak.tokenParsed?.exp || '',
+    };
+
+    const payload = {
+      ...userDetails,
+      ...formData,
+    };
+
+    try {
+      const response = await postUserData(payload);
+      console.log('Data submitted successfully:', response);
+      // Reset form after successful submission
+      setFormData({
+        shoulderError: '',
+        kneeError: '',
+        backError: '',
+        totalError: '',
+        greenPercent: '',
+        redPercent: '',
+      });
+    } catch (error) {
+      console.error('Error submitting data:', error);
+    }
+  };
+  return (
+    <div>
+      {!keycloak.authenticated ? (
+        <div className="text-center mt-20">
+          <p className="text-xl text-fuchsia-700">
+            Welcome To Biometric Login Page. Click Login To Continue Your Verification.
+          </p>
+          <button
+            className="mt-6 px-6 py-2 border-2 rounded-full bg-fuchsia-700 text-white hover:bg-amber-200"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+        </div>
+      ) : (
+        <div>
+          {/* Logout button in top right */}
+          <div className="flex justify-between items-center px-4 py-2">
+            <p className="text-xl font-semibold">Welcome To App</p>
+            <button
+              className="px-4 py-2 bg-amber-200 text-black rounded hover:bg-fuchsia-700 hover:text-white"
+              onClick={() => keycloak.logout()}
+            >
+              Logout
+            </button>
+          </div>
+
+          {/* User Details Centered */}
+          <div className="flex justify-center items-center h-[70vh]">
+            <div className="bg-white p-6 rounded shadow-md w-full max-w-md text-center">
+              <h2 className="text-2xl text-fuchsia-600 font-bold mb-4">User Details</h2>
+              <p className="text-gray-700">
+                <strong>First Name:</strong> {keycloak.tokenParsed?.given_name || 'N/A'}
+              </p>
+              <p className="text-gray-700">
+                <strong>Last Name:</strong> {keycloak.tokenParsed?.family_name || 'N/A'}
+              </p>
+              <p className="text-gray-700">
+                <strong>Email:</strong> {keycloak.tokenParsed?.email || 'N/A'}
+              </p>
+              <p className="text-gray-700">
+                <strong>id:</strong> {keycloak.tokenParsed?.sub || 'N/A'}
+              </p>
+            </div>
+          </div>
+
+          {/* Score Input Form */}
+          <div className="flex justify-center items-center h-[70vh]">
+            <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
+              <h2 className="text-2xl text-fuchsia-600 font-bold mb-4">Enter Random Score Data</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-gray-700">Shoulder Error:</label>
+                  <input
+                    type="number"
+                    name="shoulderError"
+                    value={formData.shoulderError}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Knee Error:</label>
+                  <input
+                    type="number"
+                    name="kneeError"
+                    value={formData.kneeError}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Back Error:</label>
+                  <input
+                    type="number"
+                    name="backError"
+                    value={formData.backError}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Total Error:</label>
+                  <input
+                    type="number"
+                    name="totalError"
+                    value={formData.totalError}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Green %:</label>
+                  <input
+                    type="number"
+                    name="greenPercent"
+                    value={formData.greenPercent}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Red %:</label>
+                  <input
+                    type="number"
+                    name="redPercent"
+                    value={formData.redPercent}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="mt-4 px-4 py-2 bg-fuchsia-700 text-white rounded hover:bg-amber-200"
+                >
+                  Submit
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
