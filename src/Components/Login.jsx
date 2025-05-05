@@ -4,17 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/auth.services'; // Assuming you have this service
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await loginUser(email, password);
+      const data = await loginUser(username, password);
       // Store tokens as needed, e.g., in localStorage
-      localStorage.setItem('accessToken', data.token);
-      localStorage.setItem('refreshToken', data.refresh_token);
+      localStorage.setItem('access_token', data.access_token);
+      localStorage.setItem('refresh_token', data.refresh_token);
+      localStorage.setItem('id_token', data.id_token);
+      localStorage.setItem('expires_in', data.expires_in);
+      localStorage.setItem('id', data.id);
       // Redirect to dashboard
       navigate('/dashboard');
     } catch (error) {
@@ -34,8 +37,8 @@ function Login() {
             type="text"
             placeholder='Enter your email Id here'
             className='h-15 w-65 rounded-full border-2 hover:border-r-5 hover:bg-pink-200 border-black text-center'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           /><br />
           <input
             type="password"

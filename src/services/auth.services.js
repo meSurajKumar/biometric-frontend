@@ -4,9 +4,9 @@ const baseUrl = import.meta.env.VITE_LOCAL_BASEURL;
 console.log('baseUrl ',baseUrl)
 
 
-const loginUser = async (email, password) => {
+const loginUser = async (username, password) => {
     try {
-      const response = await axios.post(`${baseUrl}/api/v1/auth/login`, { email, password });
+      const response = await axios.post(`${baseUrl}/api/v1/auth/login`, { username, password });
       return response.data;
     } catch (error) {
       console.error('Login failed:', error.response?.data || error.message);
@@ -14,7 +14,12 @@ const loginUser = async (email, password) => {
     }
   };
 
-
+ const submitScoreData = async (data, token) => {
+    const res = await axios.post(`${baseUrl}/api/v1/auth/submit`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  };
 
 const postUserData = async (data) => {
     try {
@@ -36,19 +41,37 @@ const postUserData = async (data) => {
   // New method to fetch user data for the dashboard
 
   
-  const getDashboard = async (token) => {
+  const getUserData = async (userId, token) => {
     try {
-      const response = await axios.get(`${baseUrl}/api/v1/dashboard`, {
+      const response = await axios.get(`${baseUrl}/api/v1/auth/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log('response ',response.data)
       return response.data;
     } catch (error) {
-      console.error('Dashboard API error:', error);
+      console.error('User data fetch error:', error);
       throw error;
     }
   };
+
+ const logoutUser = async (token) => {
+    return axios.post(`${baseUrl}/api/v1/auth/logout`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  };
+
+
+  const updateScoreData = async (data, token) => {
+    const res = await axios.put(`${baseUrl}/api/v1/auth/update`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  };
   
-  export { loginUser, postUserData, getDashboard };
+  
+  export { loginUser, postUserData, getUserData , logoutUser , submitScoreData,updateScoreData };
+  
+
   

@@ -2,7 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Components/Login';
 import Dashboard from './Components/Dashboard';
-import ProtectedRoute from './Components/ProtectedRoute';
+// import ProtectedRoute from './Components/ProtectedRoute';
 
 function App() {
   return (
@@ -12,9 +12,9 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            // <ProtectedRoute>
               <Dashboard />
-            </ProtectedRoute>
+            // </ProtectedRoute>
           }
         />
       </Routes>
